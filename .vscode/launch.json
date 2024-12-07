@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Svelte Debug (Chrome)",
+        "type": "chrome",
+        "request": "launch",
+        "url": "http://localhost:5000",
+        "webRoot": "${workspaceFolder}",
+        "sourceMaps": true,
+        "sourceMapPathOverrides": {
+          "webpack:///./*": "${webRoot}/*",
+          "webpack:///*": "${webRoot}/*",
+          "vite:///src/*": "${webRoot}/src/*"
+        }
+      }
+    ]
+  }
+  
