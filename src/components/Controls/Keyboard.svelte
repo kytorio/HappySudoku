@@ -7,6 +7,19 @@
 	// TODO: Improve keyboardDisabled
 	import { keyboardDisabled } from '@sudoku/stores/keyboard';
 
+	$: disabledNumbers = (() => {
+		const cellKey = $cursor.x + ',' + $cursor.y;
+		const nums = new Set();
+		if ($candidates[cellKey]) {
+			for (let num of [1, 2, 3, 4, 5, 6, 7, 8, 9]) {
+				if (!$candidates[cellKey].includes(num)) {
+					nums.add(num);
+				}
+			}
+		}
+		return nums;
+	})();
+
 	function handleKeyButton(num) {//本质是在管理键盘输入
 		if (!$keyboardDisabled) {
 			if ($notes) {	//是否开启候选值输入
@@ -86,7 +99,7 @@
 				</svg>
 			</button>
 		{:else}
-			<button class="btn btn-key" disabled={$keyboardDisabled} title="Insert {keyNum + 1}" on:click={() => handleKeyButton(keyNum + 1)}>
+			<button class="btn btn-key" disabled={$keyboardDisabled || disabledNumbers.has(keyNum + 1)} title="Insert {keyNum + 1}" on:click={() => handleKeyButton(keyNum + 1)}>
 				{keyNum + 1}
 			</button>
 		{/if}

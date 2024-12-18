@@ -5,6 +5,7 @@
 	import { startNew, startCustom } from '@sudoku/game';
 	import { validateSencode } from '@sudoku/sencode';
 	import { DIFFICULTIES } from '@sudoku/constants';
+	import { userGrid, strategyGrid, referenceGrid, strategyContent } from '@sudoku/stores/grid';
 
 	export let data = {};
 	export let hideModal;
@@ -23,6 +24,7 @@
 		}
 
 		hideModal();
+		localStorage.setItem('userGrid', JSON.stringify($userGrid));
 	}
 </script>
 

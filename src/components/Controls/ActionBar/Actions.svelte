@@ -1,23 +1,89 @@
 <!--TODO：没有做回退功能，需要增加-->
 <script>
 	import { candidates } from '@sudoku/stores/candidates';
-	import { userGrid } from '@sudoku/stores/grid';
+	import { userGrid, strategyGrid, referenceGrid, strategyContent } from '@sudoku/stores/grid';
 	import { cursor } from '@sudoku/stores/cursor';
 	import { hints } from '@sudoku/stores/hints';
 	import { notes } from '@sudoku/stores/notes';
 	import { settings } from '@sudoku/stores/settings';
-	import { keyboardDisabled } from '@sudoku/stores/keyboard';
 	import { gamePaused } from '@sudoku/stores/game';
+	import { solveSudokuTest } from '@sudoku/sudoku';
 
-	$: hintsAvailable = $hints > 0;
+	// $: hintsAvailable = $hints > 0;
+	let clickNum = 0;
+	$: level = $settings.minhintlevelateachstep;
+	// console.log("level: ", level);
+	// console.log("clickNum: ", clickNum);
+	let maxLevel = 3;
 
 	function handleHint() {	//提示
-		if (hintsAvailable) {
-			if ($candidates.hasOwnProperty($cursor.x + ',' + $cursor.y)) {	//如果有候选值就清空
-				candidates.clear($cursor);
+		// console.log("level: ", level);
+		// console.log("clickNum: ", clickNum);
+		const storedUserGrid = localStorage.getItem('userGrid');
+		let userGrid2 = JSON.parse(storedUserGrid);
+		// console.log($userGrid);
+		// console.log(userGrid2);
+		let same = JSON.stringify($userGrid) === JSON.stringify(userGrid2)
+		// console.log(same);
+		if (level + clickNum > maxLevel || !same) {
+			// console.log("111");
+			// console.log(clickNum);
+			// console.log(same);
+			clickNum = 0;
+			$userGrid.forEach((row, rowIndex) => {
+				row.forEach((cell, colIndex) => {
+					candidates.clear({x: colIndex, y: rowIndex});	
+				});
+			});
+			if (!same) {
+				localStorage.setItem('userGrid', JSON.stringify($userGrid));
+				$userGrid.forEach((row, rowIndex) => {
+					row.forEach((cell, colIndex) => {
+						// hintGrid.clear({x: rowIndex, y: colIndex});	
+						strategyGrid.clear({x: rowIndex, y: colIndex});	
+						referenceGrid.clear({x: rowIndex, y: colIndex});	
+					});
+					strategyContent.clear();
+				});
 			}
-
-			userGrid.applyHint($cursor); //应用提示，有待更改
+		} else {
+			// console.log("222");
+			// console.log(clickNum);
+			let [possibleNumbers, referenceNumbers, strategy] = solveSudokuTest($userGrid);
+			// console.log(possibleNumbers);
+			// console.log(referenceNumbers);
+			// console.log(strategy);
+			$userGrid.forEach((row, rowIndex) => {
+				row.forEach((cell, colIndex) => {
+					candidates.clear({x: colIndex, y: rowIndex});	
+				});
+			});
+			let res = JSON.parse(JSON.stringify(possibleNumbers));
+			res.forEach((row, rowIndex) => {
+				row.forEach((element, colIndex) => {
+					// console.log(rowIndex, colIndex);
+					if (element.length > level + clickNum) {
+						res[rowIndex][colIndex] = [];
+						referenceNumbers[rowIndex][colIndex] = [];
+						strategy[rowIndex][colIndex] = "";
+					} else {
+						element.forEach(value => {
+							candidates.add({ x: colIndex, y: rowIndex }, value);
+						});
+					}
+				});
+			});
+			strategy.forEach((row, rowIndex) => {
+				row.forEach((element, colIndex) => {
+					strategyGrid.set({x: rowIndex, y: colIndex}, element);
+				});
+			});
+			referenceNumbers.forEach((row, rowIndex) => {
+				row.forEach((element, colIndex) => {
+					referenceGrid.set({x: rowIndex, y: colIndex}, element);
+				});
+			});
+			clickNum += 1;
 		}
 	}
 </script>
@@ -36,14 +102,14 @@
 		</svg>
 	</button>
 
-	<button class="btn btn-round btn-badge" disabled={$keyboardDisabled || !hintsAvailable || $userGrid[$cursor.y][$cursor.x] !== 0} on:click={handleHint} title="Hints ({$hints})">
+	<button class="btn btn-round btn-badge" on:click={handleHint} title="Hints ({$hints})">
 		<svg class="icon-outline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
 		</svg>
 
-		{#if $settings.hintsLimited}
+		<!-- {#if $settings.hintsLimited}
 			<span class="badge" class:badge-primary={hintsAvailable}>{$hints}</span>
-		{/if}
+		{/if} -->
 	</button>
 
 	<button class="btn btn-round btn-badge" on:click={notes.toggle} title="Notes ({$notes ? 'ON' : 'OFF'})">

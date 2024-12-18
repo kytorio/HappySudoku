@@ -4,11 +4,12 @@
 	import { fade } from 'svelte/transition';
 	import { SUDOKU_SIZE } from '@sudoku/constants';
 	import { cursor } from '@sudoku/stores/cursor';
+	import { grid, userGrid, referenceGrid, strategyGrid, invalidCells, strategyContent } from '@sudoku/stores/grid';
 
 	export let value;
 	export let cellX;
 	export let cellY;
-	export let candidates;
+	export let candidates = [];
 
 	export let disabled;
 	export let conflictingNumber;
@@ -16,11 +17,36 @@
 	export let selected;
 	export let sameArea;
 	export let sameNumber;
+	export let referenceNumber;
 
 	const borderRight = (cellX !== SUDOKU_SIZE && cellX % 3 !== 0);
 	const borderRightBold = (cellX !== SUDOKU_SIZE && cellX % 3 === 0);
 	const borderBottom = (cellY !== SUDOKU_SIZE && cellY % 3 !== 0);
 	const borderBottomBold = (cellY !== SUDOKU_SIZE && cellY % 3 === 0);
+
+	function writeHint(pos) {
+		// console.log(candidates);
+		// console.log(pos.x, pos.y);
+		if (candidates.length == 1) {
+			userGrid.set(pos, candidates[0]);
+			cursor.reset();
+			candidates = [];
+			strategyContent.clear();
+			// console.log($userGrid);
+		}
+	}
+
+	function getStrategy(pos) {
+		// console.log($strategyContent);
+		// console.log(pos.x, pos.y);
+		cursor.set(pos.x, pos.y);
+		// console.log($strategyGrid);
+		let strategy = $strategyGrid[pos.x][pos.y];
+		// console.log(strategy);
+		strategyContent.set(strategy);
+		// console.log($strategyContent);
+	}
+
 </script>
 
 <div class="cell row-start-{cellY} col-start-{cellX}"
@@ -31,15 +57,19 @@
 
 	{#if !disabled}
 		<div class="cell-inner"
-		     class:user-number={userNumber}
-		     class:selected={selected}
-		     class:same-area={sameArea}
-		     class:same-number={sameNumber}
-		     class:conflicting-number={conflictingNumber}>
-
-			<button class="cell-btn" on:click={cursor.set(cellX - 1, cellY - 1)}>
-				{#if candidates}
+			 class:user-number={userNumber}
+			 class:selected={selected}
+			 class:same-area={sameArea}
+			 class:same-number={sameNumber}
+			 class:conflicting-number={conflictingNumber}
+			 class:hint-number={!selected && candidates && candidates.length > 0}
+			 class:reference-number={referenceNumber}>
+			 
+			<button class="cell-btn" on:click={getStrategy({x: cellX - 1, y: cellY - 1})} on:dblclick={writeHint({x: cellX - 1, y: cellY - 1})}>
+				{#if candidates && candidates.length > 1}
 					<Candidates {candidates} />
+				{:else if candidates && candidates.length === 1}
+					<span class="cell-text">{candidates[0]}</span>
 				{:else}
 					<span class="cell-text">{value || ''}</span>
 				{/if}
@@ -119,5 +149,13 @@
 
 	.conflicting-number {
 		@apply text-red-600;
+	}
+
+	.hint-number {
+		@apply bg-green-400 text-white;
+	}
+
+	.reference-number {
+		@apply bg-primary text-white;
 	}
 </style>

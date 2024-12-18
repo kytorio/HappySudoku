@@ -39,17 +39,24 @@
 	<Switch bind:checked={settings.displayTimer} text="Display timer while playing" id="display-timer" />
 
 	<Switch bind:checked={hintsLimited} text="Limit the number of hints available" id="hints-limited" />
-	{#if hintsLimited}
+	<!-- {#if hintsLimited}
 		<div transition:slide class="inline-flex items-center">
 			<label for="hints" class="flex-grow text-lg">Number of available hints</label>
 
 			<input bind:value={settings.hints} class="number-input" id="hints" name="hints" type="number" min="0" max="81" />
 		</div>
-	{/if}
+	{/if} -->
 
 	<Switch bind:checked={settings.highlightCells} text="Highlight cells in same row/column/box" id="highlight-cells" />
 	<Switch bind:checked={settings.highlightSame} text="Highlight cells with the same number" id="highlight-matching" />
 	<Switch bind:checked={settings.highlightConflicting} text="Highlight conflicting numbers" id="highlight-conflicting" />
+	
+	<div transition:slide class="inline-flex items-center">
+		<label for="level" class="flex-grow text-lg">Min hint level at each step</label>
+
+		<input bind:value={settings.minhintlevelateachstep} class="number-input" id="level" name="level" type="number" min="1" max="3" />
+	</div>
+
 </div>
 
 <div class="flex justify-end">

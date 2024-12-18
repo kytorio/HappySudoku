@@ -2,11 +2,12 @@
 <script>
 	import { BOX_SIZE } from '@sudoku/constants';
 	import { gamePaused } from '@sudoku/stores/game';
-	import { grid, userGrid, invalidCells } from '@sudoku/stores/grid';
+	import { grid, userGrid, referenceGrid, strategyGrid, invalidCells, strategyContent } from '@sudoku/stores/grid';
 	import { settings } from '@sudoku/stores/settings';
 	import { cursor } from '@sudoku/stores/cursor';
 	import { candidates } from '@sudoku/stores/candidates';
 	import Cell from './Cell.svelte';
+	import Strategy from './Strategy.svelte';
 
 	function isSelected(cursorStore, x, y) {	//标记选中的单元格
 		return cursorStore.x === x && cursorStore.y === y;
@@ -28,6 +29,32 @@
 
 		return gridStore[cursorStore.y][cursorStore.x];
 	}
+
+	function isHintSelected(cursorStore) {
+		// console.log(cursorStore.x, cursorStore.y);
+		let vis = true;
+		// console.log($candidates);
+		// console.log($candidates[cursorStore.x + ',' + cursorStore.y]);
+		if (!$candidates[cursorStore.x + ',' + cursorStore.y]) {
+			vis = false;
+		}
+		// console.log(vis);
+		return vis;
+		// return $candidates[cursorStore.x + ',' + cursorStore.y] !== undefined && $candidates[cursorStore.x + ',' + cursorStore.y].length > 0;
+	}
+
+	function isReferenced(cursorStore, x, y) {
+		if (cursorStore.x === null && cursorStore.y === null) 
+			return false;
+		// console.log(cursorStore.x, cursorStore.y);
+		// console.log($referenceGrid[cursorStore.x][cursorStore.y]);
+		let references = $referenceGrid[cursorStore.x][cursorStore.y];
+		// console.log(references);
+		let vis = references.some(ref => ref[0] === y && ref[1] === x);
+		return vis;
+	}
+
+	$: formattedStrategyContent = $strategyContent.length > 0 ? $strategyContent.join('->') : '';
 </script>
 
 <div class="board-padding relative z-10">
@@ -49,7 +76,8 @@
 					      userNumber={$grid[y][x] === 0}
 					      sameArea={$settings.highlightCells && !isSelected($cursor, x, y) && isSameArea($cursor, x, y)}
 					      sameNumber={$settings.highlightSame && value && !isSelected($cursor, x, y) && getValueAtCursor($userGrid, $cursor) === value}
-					      conflictingNumber={$settings.highlightConflicting && $grid[y][x] === 0 && $invalidCells.includes(x + ',' + y)} />
+					      conflictingNumber={$settings.highlightConflicting && $grid[y][x] === 0 && $invalidCells.includes(x + ',' + y)} 
+						  referenceNumber={isHintSelected($cursor) && isReferenced($cursor, x, y)}/>
 				{/each}
 			{/each}
 
@@ -57,7 +85,7 @@
 
 	</div>
 </div>
-
+<Strategy content={formattedStrategyContent}/>
 <style>
 	.board-padding {
 		@apply px-4 pb-4;
