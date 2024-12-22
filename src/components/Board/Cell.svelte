@@ -1,4 +1,3 @@
-<!-- Cell implementation -->
 <script>
 	import Candidates from './Candidates.svelte';
 	import { fade } from 'svelte/transition';

@@ -1,4 +1,3 @@
-<!--TODO：没有做回退功能，需要增加-->
 <script>
 	import { candidates } from '@sudoku/stores/candidates';
 	import { userGrid, strategyGrid, referenceGrid, strategyContent } from '@sudoku/stores/grid';
@@ -6,8 +5,10 @@
 	import { hints } from '@sudoku/stores/hints';
 	import { notes } from '@sudoku/stores/notes';
 	import { settings } from '@sudoku/stores/settings';
-	import { gamePaused } from '@sudoku/stores/game';
+	import { gamePaused,gameBackWard,gameForward,gameRecall } from '@sudoku/stores/game';
+	import { ReCallGame,BackupGame,ForwardGame } from '@sudoku/game'
 	import { solveSudokuTest } from '@sudoku/sudoku';
+  	import { BackupData } from '@sudoku/stores/data';
 
 	// $: hintsAvailable = $hints > 0;
 	let clickNum = 0;
@@ -90,13 +91,20 @@
 
 <div class="action-buttons space-x-3">
 
-	<button class="btn btn-round" disabled={$gamePaused} title="Undo">	<!--TODO：撤销-->
+	<button class="btn btn-round" on:click={ReCallGame} disabled={!$gameRecall} title="Recall">	<!--TODO：回溯-->
+		<svg class="icon-outline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a10 10 0 1 1 -2 4 m2 -4 l6 2m-6-2l2 -6" />
+		</svg>
+	</button>
+
+	<button class="btn btn-round" on:click={BackupGame} disabled={!$gameBackWard} title="Undo">	<!--TODO：撤销-->
 		<svg class="icon-outline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
 		</svg>
 	</button>
 
-	<button class="btn btn-round" disabled={$gamePaused} title="Redo"> <!--TODO：重置-->
+
+	<button class="btn btn-round"  on:click={ForwardGame} disabled={!$gameForward} title="Redo"> <!--TODO：前进-->
 		<svg class="icon-outline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 10h-10a8 8 90 00-8 8v2M21 10l-6 6m6-6l-6-6" />
 		</svg>

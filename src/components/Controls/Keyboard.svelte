@@ -3,7 +3,8 @@
 	import { cursor } from '@sudoku/stores/cursor';	//返回当前格子位置
 	import { notes } from '@sudoku/stores/notes';
 	import { candidates } from '@sudoku/stores/candidates';	//候选值
-
+	import { gameRecall } from '@sudoku/stores/game'
+	import { createReCalldata, BackupData } from '@sudoku/stores/data';
 	// TODO: Improve keyboardDisabled
 	import { keyboardDisabled } from '@sudoku/stores/keyboard';
 
@@ -32,8 +33,12 @@
 			} else {
 				if ($candidates.hasOwnProperty($cursor.x + ',' + $cursor.y)) {
 					candidates.clear($cursor);
+					createReCalldata($userGrid)
+					// if(!$gameRecall){
+					// 	createdata($userGrid)
+					// }
 				}
-
+				BackupData.add($cursor,num);
 				userGrid.set($cursor, num);
 			}
 		}
