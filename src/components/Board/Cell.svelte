@@ -4,6 +4,7 @@
 	import { SUDOKU_SIZE } from '@sudoku/constants';
 	import { cursor } from '@sudoku/stores/cursor';
 	import { grid, userGrid, referenceGrid, strategyGrid, invalidCells, strategyContent } from '@sudoku/stores/grid';
+	import { candidates as candidatesStore } from '@sudoku/stores/candidates';
 
 	export let value;
 	export let cellX;
@@ -30,6 +31,7 @@
 			userGrid.set(pos, candidates[0]);
 			cursor.reset();
 			candidates = [];
+			candidatesStore.clear(pos);
 			strategyContent.clear();
 			// console.log($userGrid);
 		}
