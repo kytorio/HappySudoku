@@ -54,7 +54,6 @@
 
 	function solve() {
 		// console.log(222);
-		// console.log(clickNum);
 		let [possibleNumbers, referenceNumbers, strategy] = solveSudokuTest($userGrid);
 		// console.log(possibleNumbers);
 		// console.log(referenceNumbers);
