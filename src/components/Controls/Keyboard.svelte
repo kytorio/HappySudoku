@@ -1,5 +1,5 @@
 <script>
-	import { userGrid } from '@sudoku/stores/grid';
+	import { userGrid, strategyGrid, referenceGrid, strategyContent } from '@sudoku/stores/grid';
 	import { cursor } from '@sudoku/stores/cursor';	//返回当前格子位置
 	import { notes } from '@sudoku/stores/notes';
 	import { candidates } from '@sudoku/stores/candidates';	//候选值
@@ -7,6 +7,25 @@
 	import { createReCalldata, BackupData } from '@sudoku/stores/data';
 	// TODO: Improve keyboardDisabled
 	import { keyboardDisabled } from '@sudoku/stores/keyboard';
+
+	function reset(same) {
+		$userGrid.forEach((row, rowIndex) => {
+			row.forEach((cell, colIndex) => {
+				candidates.clear({x: colIndex, y: rowIndex});	
+			});
+		});
+		if (!same) {
+			localStorage.setItem('userGrid', JSON.stringify($userGrid));
+			$userGrid.forEach((row, rowIndex) => {
+				row.forEach((cell, colIndex) => {
+					// hintGrid.clear({x: rowIndex, y: colIndex});	
+					strategyGrid.clear({x: rowIndex, y: colIndex});	
+					referenceGrid.clear({x: rowIndex, y: colIndex});	
+				});
+				strategyContent.clear();
+			});
+		}
+	}
 
 	$: disabledNumbers = (() => {
 		const cellKey = $cursor.x + ',' + $cursor.y;
@@ -33,6 +52,7 @@
 			} else {
 				if ($candidates.hasOwnProperty($cursor.x + ',' + $cursor.y)) {
 					candidates.clear($cursor);
+					reset(false);
 					createReCalldata($userGrid)
 					// if(!$gameRecall){
 					// 	createdata($userGrid)
