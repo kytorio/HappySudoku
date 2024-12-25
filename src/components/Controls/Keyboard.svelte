@@ -62,6 +62,9 @@
 				}
 				BackupData.add($cursor,num);
 				userGrid.set($cursor, num);
+				cursor.reset();
+				candidates.clear($cursor);
+				strategyContent.clear();
 				localStorage.setItem('userGrid', JSON.stringify($userGrid));
 			}
 		}
