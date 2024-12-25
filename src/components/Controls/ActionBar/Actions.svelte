@@ -2,7 +2,7 @@
 	import { candidates } from '@sudoku/stores/candidates';
 	import { userGrid, strategyGrid, referenceGrid, strategyContent } from '@sudoku/stores/grid';
 	import { cursor } from '@sudoku/stores/cursor';
-	import { hints } from '@sudoku/stores/hints';
+	import { hints, clickNum } from '@sudoku/stores/hints';
 	import { notes } from '@sudoku/stores/notes';
 	import { settings } from '@sudoku/stores/settings';
 	import { gamePaused,gameBackWard,gameForward,gameRecall } from '@sudoku/stores/game';
@@ -11,7 +11,7 @@
   	import { BackupData } from '@sudoku/stores/data';
 
 	// $: hintsAvailable = $hints > 0;
-	let clickNum = 0;
+	// let clickNum = 0;
 	$: level = $settings.minhintlevelateachstep;
 	// console.log("level: ", level);
 	// console.log("clickNum: ", clickNum);
@@ -30,10 +30,10 @@
 	}
 
 	function reset(same) {
-		// console.log(111);
 		// console.log(clickNum);
 		// console.log(same);
-		clickNum = 0;
+		// clickNum = 0;
+		clickNum.update($clickNum => $clickNum = 0);
 		$userGrid.forEach((row, rowIndex) => {
 			row.forEach((cell, colIndex) => {
 				candidates.clear({x: colIndex, y: rowIndex});	
@@ -54,6 +54,7 @@
 
 	function solve() {
 		// console.log(222);
+		// console.log(clickNum);
 		let [possibleNumbers, referenceNumbers, strategy] = solveSudokuTest($userGrid);
 		// console.log(possibleNumbers);
 		// console.log(referenceNumbers);
@@ -67,7 +68,7 @@
 		res.forEach((row, rowIndex) => {
 			row.forEach((element, colIndex) => {
 				// console.log(rowIndex, colIndex);
-				if (element.length > level + clickNum) {
+				if (element.length > level + $clickNum) {
 					res[rowIndex][colIndex] = [];
 					referenceNumbers[rowIndex][colIndex] = [];
 					strategy[rowIndex][colIndex] = "";
@@ -88,19 +89,21 @@
 				referenceGrid.set({x: rowIndex, y: colIndex}, element);
 			});
 		});
-		clickNum += 1;
+		// clickNum += 1;
+		clickNum.update($clickNum => $clickNum + 1);
 	}
 
 	function handleHint() {	//提示
 		// console.log("level: ", level);
-		// console.log("clickNum: ", clickNum);
+		// console.log("clickNum: ", $clickNum);
+		// console.log(level, $clickNum, maxLevel);
 		const storedUserGrid = localStorage.getItem('userGrid');
 		let userGrid2 = JSON.parse(storedUserGrid);
 		// console.log($userGrid);
 		// console.log(userGrid2);
 		let same = JSON.stringify($userGrid) === JSON.stringify(userGrid2)
 		// console.log(same);
-		if (level + clickNum > maxLevel || !same) {
+		if (level + $clickNum > maxLevel || !same) {
 			reset(same);
 		} else {
 			solve();

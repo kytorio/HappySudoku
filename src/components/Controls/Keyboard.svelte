@@ -7,15 +7,17 @@
 	import { createReCalldata, BackupData } from '@sudoku/stores/data';
 	// TODO: Improve keyboardDisabled
 	import { keyboardDisabled } from '@sudoku/stores/keyboard';
+	import { clickNum } from '@sudoku/stores/hints';
 
 	function reset(same) {
+		clickNum.update($clickNum => $clickNum = 0);
 		$userGrid.forEach((row, rowIndex) => {
 			row.forEach((cell, colIndex) => {
 				candidates.clear({x: colIndex, y: rowIndex});	
 			});
 		});
 		if (!same) {
-			localStorage.setItem('userGrid', JSON.stringify($userGrid));
+			// localStorage.setItem('userGrid', JSON.stringify($userGrid));
 			$userGrid.forEach((row, rowIndex) => {
 				row.forEach((cell, colIndex) => {
 					// hintGrid.clear({x: rowIndex, y: colIndex});	
@@ -60,6 +62,7 @@
 				}
 				BackupData.add($cursor,num);
 				userGrid.set($cursor, num);
+				localStorage.setItem('userGrid', JSON.stringify($userGrid));
 			}
 		}
 	}
