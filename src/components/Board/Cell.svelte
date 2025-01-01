@@ -6,6 +6,7 @@
 	import { grid, userGrid, referenceGrid, strategyGrid, invalidCells, strategyContent } from '@sudoku/stores/grid';
 	import { candidates as candidatesStore } from '@sudoku/stores/candidates';
 	import { BackupData } from '@sudoku/stores/data';
+	import { clickNum } from '@sudoku/stores/hints';
 
 	export let value;
 	export let cellX;
@@ -25,16 +26,38 @@
 	const borderBottom = (cellY !== SUDOKU_SIZE && cellY % 3 !== 0);
 	const borderBottomBold = (cellY !== SUDOKU_SIZE && cellY % 3 === 0);
 
+	function reset(same) {
+		clickNum.update($clickNum => $clickNum = 0);
+		if (!same) {
+			$userGrid.forEach((row, rowIndex) => {
+				row.forEach((cell, colIndex) => {
+					candidates.clear({x: colIndex, y: rowIndex});	
+				});
+			});
+			// localStorage.setItem('userGrid', JSON.stringify($userGrid));
+			$userGrid.forEach((row, rowIndex) => {
+				row.forEach((cell, colIndex) => {
+					// hintGrid.clear({x: rowIndex, y: colIndex});	
+					strategyGrid.clear({x: rowIndex, y: colIndex});	
+					referenceGrid.clear({x: rowIndex, y: colIndex});	
+				});
+			});
+		}
+	}
+
 	function writeHint(pos) {
 		// console.log(candidates);
 		// console.log(pos.x, pos.y);
 		if (candidates.length == 1) {
 			userGrid.set(pos, candidates[0]);
+			localStorage.setItem('userGrid', JSON.stringify($userGrid));
 			BackupData.add(pos,candidates[0]);
 			cursor.reset();
 			candidates = [];
 			candidatesStore.clear(pos);
+			strategyGrid.clear(pos);
 			strategyContent.clear();
+			reset(true);
 			// console.log($userGrid);
 		}
 	}

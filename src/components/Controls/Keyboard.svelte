@@ -11,12 +11,12 @@
 
 	function reset(same) {
 		clickNum.update($clickNum => $clickNum = 0);
-		$userGrid.forEach((row, rowIndex) => {
-			row.forEach((cell, colIndex) => {
-				candidates.clear({x: colIndex, y: rowIndex});	
-			});
-		});
 		if (!same) {
+			$userGrid.forEach((row, rowIndex) => {
+				row.forEach((cell, colIndex) => {
+					candidates.clear({x: colIndex, y: rowIndex});	
+				});
+			});
 			// localStorage.setItem('userGrid', JSON.stringify($userGrid));
 			$userGrid.forEach((row, rowIndex) => {
 				row.forEach((cell, colIndex) => {
@@ -24,7 +24,6 @@
 					strategyGrid.clear({x: rowIndex, y: colIndex});	
 					referenceGrid.clear({x: rowIndex, y: colIndex});	
 				});
-				strategyContent.clear();
 			});
 		}
 	}
@@ -52,20 +51,23 @@
 				}
 				userGrid.set($cursor, 0);	//存在候选值的时候usergrid对应格的值还是视为0
 			} else {
-				if ($candidates.hasOwnProperty($cursor.x + ',' + $cursor.y)) {
+				if ($candidates.hasOwnProperty($cursor.x + ',' + $cursor.y) && $candidates[$cursor.x + ',' + $cursor.y].length > 1) {
+					console.log($candidates[$cursor.x + ',' + $cursor.y].length)
 					candidates.clear($cursor);
 					reset(false);
 					createReCalldata($userGrid)
-					// if(!$gameRecall){
-					// 	createdata($userGrid)
-					// }
+				} else if ($candidates.hasOwnProperty($cursor.x + ',' + $cursor.y) && $candidates[$cursor.x + ',' + $cursor.y].length === 1) {
+					console.log($candidates[$cursor.x + ',' + $cursor.y].length)
+					candidates.clear($cursor);
+					reset(true);
+					createReCalldata($userGrid)
 				}
+				strategyGrid.clear($cursor);
+				strategyContent.clear();
 				BackupData.add($cursor,num);
 				userGrid.set($cursor, num);
-				cursor.reset();
-				candidates.clear($cursor);
-				strategyContent.clear();
 				localStorage.setItem('userGrid', JSON.stringify($userGrid));
+				cursor.reset();
 			}
 		}
 	}

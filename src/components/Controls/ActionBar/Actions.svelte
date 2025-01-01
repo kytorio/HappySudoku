@@ -9,13 +9,16 @@
 	import { ReCallGame,BackupGame,ForwardGame } from '@sudoku/game'
 	import { solveSudokuTest } from '@sudoku/sudoku';
   	import { BackupData } from '@sudoku/stores/data';
+	import { modal } from '@sudoku/stores/modal';
+	import game from '@sudoku/game';
+	import { MAXLEVEL } from '@sudoku/constants';
 
 	// $: hintsAvailable = $hints > 0;
 	// let clickNum = 0;
 	$: level = $settings.minhintlevelateachstep;
 	// console.log("level: ", level);
 	// console.log("clickNum: ", clickNum);
-	let maxLevel = 3;
+	let maxLevel = MAXLEVEL;
 
 	function handleReCallGame() {
 		ReCallGame();
@@ -65,6 +68,19 @@
 			});
 		});
 		let res = JSON.parse(JSON.stringify(possibleNumbers));
+
+		let hasHint = false;
+		res.forEach((row, rowIndex) => {
+			row.forEach((element, colIndex) => {
+				if (element.length > 0) {
+					hasHint = true;
+				}
+			});
+		});
+		if (!hasHint) {
+			// game.pause();
+			modal.show('nosolution');
+		}
 		res.forEach((row, rowIndex) => {
 			row.forEach((element, colIndex) => {
 				// console.log(rowIndex, colIndex);
