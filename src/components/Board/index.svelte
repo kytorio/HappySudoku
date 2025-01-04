@@ -50,7 +50,7 @@
 		// console.log($referenceGrid[cursorStore.x][cursorStore.y]);
 		let references = $referenceGrid[cursorStore.x][cursorStore.y];
 		// console.log(references);
-		let vis = references.some(ref => ref[0] === y && ref[1] === x);
+		let vis = references.some(ref => ref[0] === y && ref[1] === x && $userGrid[y][x] != 0);
 		return vis;
 	}
 
